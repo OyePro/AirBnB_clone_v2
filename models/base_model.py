@@ -26,7 +26,9 @@ class BaseModel:
         else:
             time_format = '%Y-%m-%dT%H:%M:%S.%f'
             if kwargs:
-                kwargs.pop("__class__", None)
+                if 'id' not in kwargs.keys():
+                    kwargs['id'] = str(uuid.uuid4())
+                kwargs.pop('__class__', None)
 
                 for k, v in kwargs.items():
                     if k in ("updated_at", "created_at"):
@@ -57,7 +59,8 @@ class BaseModel:
         dictionary['created_at'] = self.created_at.isoformat()
         dictionary['updated_at'] = self.updated_at.isoformat()
 
-        dictionary.pop('_sa_instance_state', None)
+        if '_sa_instance_state' in dictionary.keys():
+            del dictionary['_sa_instance_state']
         return dictionary
 
     def delete(self):
