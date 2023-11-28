@@ -7,8 +7,6 @@ import unittest
 import MySQLdb
 
 dbenv = os.getenv("HBNB_TYPE_STORAGE", "fs")
-mysqldb = MySQLdb.connect(host="localhost", user="hbnb_dev",
-                          passwd="hbnb_dev_pwd", db="hbnb_dev_db")
 
 
 class TestAmenity(TestBasemodel):
@@ -19,6 +17,19 @@ class TestAmenity(TestBasemodel):
         super().__init__(*args, **kwargs)
         self.name = "Amenity"
         self.value = Amenity
+
+    @classmethod
+    def setUp(cls):
+        """Starting MySQL connector"""
+        cls.db = MySQLdb.connect(host="localhost", user="hbnb_dev",
+                                 passwd="hbnb_dev_pwd", db="hbnb_dev_db")
+        cls.cursor = cls.db.cursor()
+
+    @classmethod
+    def tearDown(cls):
+        """Close the MySQL connection"""
+        cls.cursor.close()
+        cls.db.close()
 
     @unittest.skipIf(dbenv == 'db', "for filestorage only")
     def test_name2(self):
@@ -63,12 +74,10 @@ class TestAmenity(TestBasemodel):
         amenity3.save()
 
         """counting the rows of in place_amenity table before adding"""
-        cur = mysqldb.cursor()
         query = f"SELECT COUNT(*) FROM place_amenity;"
-        cur.execute(query)
-        result = cur.fetchone()
+        self.cursor.execute(query)
+        result = self.cursor.fetchone()
         count = result[0]
-        cur.close()
 
         """linking place1 with 2 amenities"""
         place1.amenities.append(amenity1)
@@ -82,13 +91,9 @@ class TestAmenity(TestBasemodel):
         storage.save()
 
         """counting the rows after adding"""
-        cur = mysqldb.cursor()
-        table_name = "place_amenity"
         query = f"SELECT COUNT(*) FROM place_amenity;"
-        cur.execute(query)
-        result = cur.fetchone()
-        count1 = result[0]
-        cur.close()
-        mysqldb.close()
+        self.cursor.execute(query)
+        result1 = self.cursor.fetchone()
+        count1 = result1[0]
 
         self.assertTrue(count1 == count)

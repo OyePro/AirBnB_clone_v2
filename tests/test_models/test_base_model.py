@@ -101,4 +101,4 @@ class TestBasemodel(unittest.TestCase):
         self.assertEqual(type(new.updated_at), datetime.datetime)
         n = new.to_dict()
         new = BaseModel(**n)
-        self.assertTrue(isinstance(new.updated_at, str)
+        self.assertTrue(isinstance(new.updated_at, datetime.datetime))
