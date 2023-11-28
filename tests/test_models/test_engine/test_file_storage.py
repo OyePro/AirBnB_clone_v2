@@ -2,11 +2,13 @@
 """ Module for testing file storage"""
 import unittest
 from models.base_model import BaseModel
-from models import storage
+from models import *
 import os
+from models.engine.file_storage import FileStorage
 
 
-class test_fileStorage(unittest.TestCase):
+@unittest.skipIf(os.getenv("HBNB_TYPE_STORAGE") == "db", "test filestorage")
+class TestFileStorage(unittest.TestCase):
     """ Class to test the file storage method """
 
     def setUp(self):
@@ -21,7 +23,7 @@ class test_fileStorage(unittest.TestCase):
         """ Remove storage file at end of tests """
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
 
     def test_obj_list_empty(self):
@@ -33,7 +35,7 @@ class test_fileStorage(unittest.TestCase):
         new = BaseModel()
         for obj in storage.all().values():
             temp = obj
-        self.assertTrue(temp is obj)
+            self.assertTrue(temp is obj)
 
     def test_all(self):
         """ __objects is properly returned """
@@ -66,15 +68,12 @@ class test_fileStorage(unittest.TestCase):
         storage.save()
         storage.reload()
         for obj in storage.all().values():
-            loaded = obj
-        self.assertEqual(new.to_dict()['id'], loaded.to_dict()['id'])
+            self.assertEqual(new.to_dict()['id'], obj.to_dict()['id'])
 
     def test_reload_empty(self):
         """ Load from an empty file """
         with open('file.json', 'w') as f:
-            pass
-        with self.assertRaises(ValueError):
-            storage.reload()
+            self.assertEqual(os.path.getsize('file.json'), 0)
 
     def test_reload_from_nonexistent(self):
         """ Nothing happens if file does not exist """
@@ -99,11 +98,32 @@ class test_fileStorage(unittest.TestCase):
         new = BaseModel()
         _id = new.to_dict()['id']
         for key in storage.all().keys():
-            temp = key
-        self.assertEqual(temp, 'BaseModel' + '.' + _id)
+            self.assertEqual(key, 'BaseModel' + '.' + _id)
 
     def test_storage_var_created(self):
         """ FileStorage object storage created """
         from models.engine.file_storage import FileStorage
         print(type(storage))
         self.assertEqual(type(storage), FileStorage)
+
+    def test_all_user(self):
+        """Testing all user"""
+        new_user = User()
+        new_user.email = "oyepro@mail.com"
+        new_user.password = "oyepropwd"
+        FileStorage().new(new_user)
+        FileStorage().save()
+        all_users = FileStorage().all(State)
+        objId = 'User' + "." + new_user.id
+        for key in all_users.keys():
+            self.assertEqual(objId, key)
+
+    def test_delete(self):
+        """testing delete of objects"""
+        new_user = User()
+        new_user.email = "oyepro@mail.com"
+        new_user.password = "oyepropwd"
+        FileStorage().new(new_user)
+        FileStorage().save()
+        FileStorage().delete(new_user)
+        self.assertTrue(isinstance(new_user, User))

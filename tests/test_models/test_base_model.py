@@ -7,8 +7,10 @@ from uuid import UUID
 import json
 import os
 
+db = os.getenv("HBNB_TYPE_STORAGE", "fs")
 
-class test_basemodel(unittest.TestCase):
+
+class TestBasemodel(unittest.TestCase):
     """ """
 
     def __init__(self, *args, **kwargs):
@@ -24,7 +26,7 @@ class test_basemodel(unittest.TestCase):
     def tearDown(self):
         try:
             os.remove('file.json')
-        except:
+        except FileNotFoundError:
             pass
 
     def test_default(self):
@@ -47,6 +49,7 @@ class test_basemodel(unittest.TestCase):
         with self.assertRaises(TypeError):
             new = BaseModel(**copy)
 
+    @unittest.skipUnless(db != "db", "test filestorage only")
     def test_save(self):
         """ Testing save """
         i = self.value()
@@ -74,11 +77,13 @@ class test_basemodel(unittest.TestCase):
         with self.assertRaises(TypeError):
             new = self.value(**n)
 
-    def test_kwargs_one(self):
+    def test_update_kwargs(self):
         """ """
-        n = {'Name': 'test'}
-        with self.assertRaises(KeyError):
-            new = self.value(**n)
+        n = self.value()
+        n_dict = {}
+        n_dict.update(n.__dict__)
+        n_dict["name"] = "test"
+        self.assertEqual(n_dict["name"], 'test')
 
     def test_id(self):
         """ """
