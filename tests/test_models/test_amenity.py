@@ -21,8 +21,8 @@ class TestAmenity(TestBasemodel):
     @classmethod
     def setUp(cls):
         """Starting MySQL connector"""
-        cls.db = MySQLdb.connect(host="localhost", user="hbnb_dev",
-                                 passwd="hbnb_dev_pwd", db="hbnb_dev_db")
+        cls.db = MySQLdb.connect(host="localhost", user="hbnb_test",
+                                 passwd="hbnb_test_pwd", db="hbnb_test_db")
         cls.cursor = cls.db.cursor()
 
     @classmethod
