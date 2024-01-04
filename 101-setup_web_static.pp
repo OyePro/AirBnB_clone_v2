@@ -12,23 +12,21 @@ exec {"install Nginx":
 }
 
 file { '/data/':
-  ensure => directory,
+  ensure => "directory",
   owner  => "ubuntu",
   group  => "ubuntu",
 }
 
 file { '/data/web_static/releases/test/':
-  ensure => directory,
-  mode   => "0755",
+  ensure => "directory",
 }
 
 file { '/data/web_static/shared/':
-  ensure => directory,
-  mode   => "0755",
+  ensure => "directory",
 }
 
 file { '/data/web_static/releases/test/index.html':
-  ensure  => file,
+  ensure  => "present",
   content => '<html>
   		<head>
   		</head>
