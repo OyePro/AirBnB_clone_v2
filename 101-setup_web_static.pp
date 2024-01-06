@@ -12,45 +12,47 @@ exec {"install Nginx":
 }
 
 -> file { '/data/':
-  ensure => "directory",
-  owner  => "ubuntu",
-  group  => "ubuntu",
+  ensure => "directory"
 }
 
 -> file { '/data/web_static/':
-  ensure => 'directory',
+  ensure => 'directory'
 }
 
 -> file { '/data/web_static/releases/test/':
-  ensure => 'directory',
+  ensure => 'directory'
 }
 
 -> file { '/data/web_static/releases/test/':
-  ensure => "directory",
+  ensure => "directory"
 }
 
 -> file { '/data/web_static/shared/':
-  ensure => "directory",
+  ensure => "directory"
 }
 
 -> file { '/data/web_static/releases/test/index.html':
   ensure  => "present",
-  content => "<html>\n  <head>\n  </head>\n  <body>\n    Holberton School\n  </body>\n</html>",
+  content => "<html>\n  <head>\n  </head>\n  <body>\n    Holberton School\n  </body>\n</html>"
 }
 
 -> exec {"symbolic link":
   provider => shell,
   command  => "sudo ln -sf /data/web_static/releases/test/ /data/web_static/current",
-  before   => Exec['add hbnb_static'],
+  before   => Exec['add hbnb_static']
+}
+
+-> exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
 }
 
 -> exec {'add hbnb_static':
   provider => shell,
   command  => "sudo sed -i '/^[^#]*location \/ {/ { :a; N; /}/!ba; s/}/&\n\n        location \/hbnb_static {\n                alias \/data\/web_static\/current\/;\n        }/; }' /etc/nginx/sites-available/default",
-  before   => Exec['restart Nginx'],
+  before   => Exec['restart Nginx']
 }
 
 -> exec {'restart nginx':
   provider => shell,
-  command  => 'sudo service nginx restart',
+  command  => 'sudo service nginx restart'
 }
