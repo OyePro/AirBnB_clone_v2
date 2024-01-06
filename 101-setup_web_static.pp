@@ -11,44 +11,46 @@ exec {"install Nginx":
   command  => "sudo apt-get -y install nginx",
 }
 
-file { '/data/':
+-> file { '/data/':
   ensure => "directory",
   owner  => "ubuntu",
   group  => "ubuntu",
 }
 
-file { '/data/web_static/releases/test/':
+-> file { '/data/web_static/':
+  ensure => 'directory',
+}
+
+-> file { '/data/web_static/releases/test/':
+  ensure => 'directory',
+}
+
+-> file { '/data/web_static/releases/test/':
   ensure => "directory",
 }
 
-file { '/data/web_static/shared/':
+-> file { '/data/web_static/shared/':
   ensure => "directory",
 }
 
-file { '/data/web_static/releases/test/index.html':
+-> file { '/data/web_static/releases/test/index.html':
   ensure  => "present",
-  content => '<html>
-  		<head>
-  		</head>
-  		<body>
-    		  Holberton School
-  		</body>
-	      </html>',
+  content => "<html>\n  <head>\n  </head>\n  <body>\n    Holberton School\n  </body>\n</html>",
 }
 
-exec {"symbolic link":
+-> exec {"symbolic link":
   provider => shell,
   command  => "sudo ln -sf /data/web_static/releases/test/ /data/web_static/current",
   before   => Exec['add hbnb_static'],
 }
 
-exec {'add hbnb_static':
+-> exec {'add hbnb_static':
   provider => shell,
   command  => "sudo sed -i '/^[^#]*location \/ {/ { :a; N; /}/!ba; s/}/&\n\n        location \/hbnb_static {\n                alias \/data\/web_static\/current\/;\n        }/; }' /etc/nginx/sites-available/default",
   before   => Exec['restart Nginx'],
 }
 
-exec {'restart nginx':
+-> exec {'restart nginx':
   provider => shell,
   command  => 'sudo service nginx restart',
 }
