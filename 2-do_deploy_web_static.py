@@ -20,15 +20,15 @@ def do_deploy(archive_path):
     """ archive_path = versions/web_static_20240104.tgz """
     archive_name = archive_path.split("/")[1]
     name_ext = archive_name.split(".")[0]
-    folder = f"/data/web_static/releases/{name_ext}"
+    folder = f"/data/web_static/releases/{name_ext}/"
 
     try:
         put(archive_path, "/tmp")
         run(f"sudo mkdir -p {folder}")
         run(f"sudo tar -xzf /tmp/{archive_name} -C {folder}")
-        run(f"sudo rm -f /tmp/{archive_name}")
-        run(f"sudo mv {folder}/web_static/* {folder}/")
-        run(f"sudo rm -rf {folder}/web_static")
+        run(f"sudo rm  /tmp/{archive_name}")
+        run(f"sudo mv {folder}web_static/* {folder}")
+        run(f"sudo rm -rf {folder}web_static")
         run("sudo rm -rf /data/web_static/current")
         run(f"sudo ln -s {folder} /data/web_static/current")
         print("New version deployed!")

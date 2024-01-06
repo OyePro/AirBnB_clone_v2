@@ -2,6 +2,7 @@
 """
 A fabric script that create and distributes an archive to web servers
 """
+from fabric.api import env
 do_pack = __import__("1-pack_web_static").do_pack
 do_deploy = __import__("2-do_deploy_web_static").do_deploy
 
@@ -15,6 +16,3 @@ def deploy():
         return False
     else:
         return do_deploy(archive_path)
-
-
-deploy()
